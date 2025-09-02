@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>نموذج بيانات طالب - مدرسة النصر الأهلية</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap');
+    :root{
+      --brand1:#0ea5e9; /* sky-500 */
+      --brand2:#14b8a6; /* teal-500 */
+      --brand3:#10b981; /* emerald-500 */
+      --ink:#0f172a;    /* slate-900 */
+    }
+    body{ font-family:'Cairo',sans-serif; background:linear-gradient(135deg,#ecfeff 0%,#ecfdf5 100%); }
+    .card{ box-shadow:0 24px 60px rgba(15,23,42,.08), 0 8px 24px rgba(20,184,166,.08); }
+    .btn{ background:linear-gradient(135deg,var(--brand1),var(--brand2)); transition:.2s; }
+    .btn:hover{ transform:translateY(-2px); box-shadow:0 14px 30px rgba(14,165,233,.25); }
+    .btn-alt{ background:#e2e8f0; color:#0f172a; }
+    .btn-alt:hover{ background:#cbd5e1; }
+    .chip{ background:linear-gradient(135deg,#e0f2fe,#dcfce7); color:#0f172a; }
+    canvas{ border:2px dashed #cbd5e1; border-radius:14px; background:#f8fafc; }
+    .step-hidden{ display:none; }
+  </style>
+</head>
+<body class="min-h-screen py-8 px-4">
+
+  <!-- Header Stripe -->
+  <div class="max-w-6xl mx-auto mb-4">
+    <div class="rounded-2xl p-4 md:p-6 card bg-white">
+      <div class="flex items-center justify-between">
+        <div class="text-sm md:text-base font-bold text-slate-700">
+          الإدارة العامة للتعليم الخاص
+        </div>
+        <!-- تم التعديل هنا: سطرين يسار الهيدر -->
+        <div class="text-right">
+          <div class="text-xs md:text-sm font-bold text-slate-600">مؤسسة الجيل الجديد التعليمية</div>
+          <div class="text-sm md:text-base font-extrabold text-emerald-700">مدرسة النصر الأهلية</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="max-w-6xl mx-auto bg-white rounded-3xl card p-6 md:p-10">
+    <div class="flex items-start md:items-center flex-col md:flex-row gap-4 justify-between mb-8">
+      <div>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-1">نموذج بيانات طالب</h1>
+        <p class="text-slate-600">يُرجى تعبئة جميع الحقول مطابقة للنموذج الورقي.</p>
+      </div>
+      <span class="px-4 py-2 rounded-full chip text-sm font-semibold">سنة دراسية جديدة</span>
+    </div>
+
+    <!-- Progress -->
+    <div class="mb-8">
+      <div class="h-3 bg-slate-200/70 rounded-full overflow-hidden">
+        <div id="progressBar" class="h-3 rounded-full bg-gradient-to-r from-sky-400 via-teal-500 to-emerald-500" style="width:0%"></div>
+      </div>
+      <p class="text-center text-sm text-slate-600 mt-2">
+        خطوة <span id="stepNow">1</span> من <span id="stepTotal">8</span>
+      </p>
+    </div>
+
+    <form id="studentForm" class="space-y-10">
+
+      <!-- STEP 1: البيانات العامة -->
+      <section id="step1" class="space-y-6">
+        <h2 class="text-xl font-bold text-slate-900">البيانات العامة</h2>
+
+        <div class="grid md:grid-cols-2 gap-5">
+          <div>
+            <label class="block font-semibold mb-2">اسم الطالب (مطابق للبطاقة) *</label>
+            <input name="studentName" type="text" required class="w-full border-2 rounded-2xl p-3 focus:outline-none focus:border-sky-400" placeholder="الاسم الثلاثي / الرباعي" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-2">الرقم المدني للطالب *</label>
+            <input name="studentCivilId" type="text" inputmode="numeric" pattern="\d{12}" maxlength="12" required class="w-full border-2 rounded-2xl p-3 focus:outline-none focus:border-sky-400" placeholder="12 رقمًا" />
+            <p class="text-xs text-slate-500 mt-1">يجب أن يكون 12 رقمًا (مثال: 298010112345).</p>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-5">
+          <div>
+            <label class="block font-semibold mb-2">الصف الجديد *</label>
+            <input name="newGrade" type="text" required class="w-full border-2 rounded-2xl p-3 focus:outline-none focus:border-teal-500" placeholder="مثال: الصف الخامس" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-2">نتيجة العام الماضي *</label>
+            <div class="flex items-center gap-6 text-slate-700">
+              <label class="flex items-center gap-2"><input type="radio" name="lastYearResult" value="ناجح" required> ناجح</label>
+              <label class="flex items-center gap-2"><input type="radio" name="lastYearResult" value="راسب" required> راسب</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-5">
+          <div>
+            <label class="block font-semibold mb-2">حالة القيد *</label>
+            <div class="flex flex-wrap gap-4 text-slate-700">
+              <label class="flex items-center gap-2"><input type="radio" name="enrollmentStatus" value="مستجد" required> مستجد</label>
+              <label class="flex items-center gap-2"><input type="radio" name="enrollmentStatus" value="مستمر" required> مستمر</label>
+            </div>
+          </div>
+          <div>
+            <label class="block font-semibold mb-2">نوع الطلب (اختياري)</label>
+            <div class="flex flex-wrap gap-4 text-slate-700">
+              <label class="flex items-center gap-2"><input type="radio" name="requestType" value="نقل"> نقل</label>
+              <label class="flex items-center gap-2"><input type="radio" name="requestType" value="إعادة قيد"> إعادة قيد</label>
+              <label class="flex items-center gap-2"><input type="radio" name="requestType" value="عسكري"> عسكري</label>
+              <label class="flex items-center gap-2"><input type="radio" name="requestType" value="صندوق"> صندوق</label>
+              <label class="flex items-center gap-2"><input type="radio" name="requestType" value="الأوقاف"> الأوقاف</label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 2: بيانات الأب -->
+      <section id="step2" class="step-hidden space-y-6">
+        <h2 class="text-xl font-bold text-slate-900">بيانات الأب</h2>
+
+        <div>
+          <label class="block font-semibold mb-2">الحالة الوظيفية للأب *</label>
+          <div class="grid md:grid-cols-3 gap-x-4 gap-y-2 text-slate-700">
+            <label class="flex items-center gap-2"><input type="radio" name="fatherEmployment" value="متقاعد" required> متقاعد</label>
+            <label class="flex items-center gap-2"><input type="radio" name="fatherEmployment" value="حكومي"> موظف حكومي</label>
+            <label class="flex items-center gap-2"><input type="radio" name="fatherEmployment" value="خاص"> موظف قطاع خاص</label>
+            <label class="flex items-center gap-2"><input type="radio" name="fatherEmployment" value="عسكري"> عسكري</label>
+            <label class="flex items-center gap-2"><input type="radio" name="fatherEmployment" value="متوفى"> متوفّى</label>
+            <label class="flex items-center gap-2"><input type="radio" name="fatherEmployment" value="عاطل"> عاطل عن العمل</label>
+            <label class="flex items-center gap-2"><input type="radio" name="fatherEmployment" value="أعمال حرة"> أعمال حرة</label>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-5">
+          <div>
+            <label class="block mb-2 font-semibold">اسم الأب بالكامل *</label>
+            <input name="fatherName" required class="w-full border-2 rounded-2xl p-3 focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label class="block mb-2 font-semibold">وظيفة الأب</label>
+            <input name="fatherJob" class="w-full border-2 rounded-2xl p-3" />
+          </div>
+          <div>
+            <label class="block mb-2 font-semibold">عنوان العمل</label>
+            <input name="fatherWorkAddress" class="w-full border-2 rounded-2xl p-3" />
+          </div>
+          <div>
+            <label class="block mb-2 font-semibold">هاتف العمل / الجوال</label>
+            <input name="fatherPhone" class="w-full border-2 rounded-2xl p-3" />
+          </div>
+          <div>
+            <label class="block mb-2 font-semibold">جنسية الأب</label>
+            <input name="fatherNationality" class="w-full border-2 rounded-2xl p-3" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-2">الحالة الاجتماعية للأب</label>
+          <div class="flex flex-wrap gap-4 text-slate-700">
+            <label class="flex items-center gap-2"><input type="radio" name="fatherMarital" value="متزوج بأخرى"> متزوج بأخرى</label>
+            <label class="flex items-center gap-2"><input type="radio" name="fatherMarital" value="أرمل"> أرمل</label>
+            <label class="flex items-center gap-2"><input type="radio" name="fatherMarital" value="مطلق"> مطلق</label>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 3: بيانات الأم -->
+      <section id="step3" class="step-hidden space-y-6">
+        <h2 class="text-xl font-bold text-slate-900">بيانات الأم</h2>
+
+        <div>
+          <label class="block font-semibold mb-2">الحالة الوظيفية للأم *</label>
+          <div class="grid md:grid-cols-3 gap-x-4 gap-y-2 text-slate-700">
+            <label class="flex items-center gap-2"><input type="radio" name="motherEmployment" value="ربة منزل" required> ربة منزل</label>
+            <label class="flex items-center gap-2"><input type="radio" name="motherEmployment" value="حكومي"> موظفة حكومية</label>
+            <label class="flex items-center gap-2"><input type="radio" name="motherEmployment" value="خاص"> موظفة قطاع خاص</label>
+            <label class="flex items-center gap-2"><input type="radio" name="motherEmployment" value="متوفاة"> متوفّاة</label>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-5">
+          <div>
+            <label class="block mb-2 font-semibold">اسم الأم بالكامل *</label>
+            <input name="motherName" required class="w-full border-2 rounded-2xl p-3 focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label class="block mb-2 font-semibold">وظيفة الأم</label>
+            <input name="motherJob" class="w-full border-2 rounded-2xl p-3" />
+          </div>
+          <div>
+            <label class="block mb-2 font-semibold">عنوان العمل</label>
+            <input name="motherWorkAddress" class="w-full border-2 rounded-2xl p-3" />
+          </div>
+          <div>
+            <label class="block mb-2 font-semibold">هاتف العمل / الجوال</label>
+            <input name="motherPhone" class="w-full border-2 rounded-2xl p-3" />
+          </div>
+          <div>
+            <label class="block mb-2 font-semibold">جنسية الأم</label>
+            <input name="motherNationality" class="w-full border-2 rounded-2xl p-3" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-2">الحالة الاجتماعية للأم</label>
+          <div class="flex flex-wrap gap-4 text-slate-700">
+            <label class="flex items-center gap-2"><input type="radio" name="motherMarital" value="متزوجة بآخر"> متزوجة بآخر</label>
+            <label class="flex items-center gap-2"><input type="radio" name="motherMarital" value="أرملة"> أرملة</label>
+            <label class="flex items-center gap-2"><input type="radio" name="motherMarital" value="مطلقة"> مطلقة</label>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 4: ولي الأمر غير الوالد -->
+      <section id="step4" class="step-hidden space-y-6">
+        <h2 class="text-xl font-bold text-slate-900">بيانات ولي الأمر غير الوالد (إن وجد)</h2>
+
+        <div class="grid md:grid-cols-2 gap-5">
+          <div>
+            <label class="block mb-2 font-semibold">الاسم</label>
+            <input name="guardianName" class="w-full border-2 rounded-2xl p-3" />
+          </div>
+          <div>
+            <label class="block mb-2 font-semibold">صلة القرابة</label>
+            <input name="guardianRelation" class="w-full border-2 rounded-2xl p-3" />
+          </div>
+          <div>
+            <label class="block mb-2 font-semibold">الجنسية</label>
+            <input name="guardianNationality" class="w-full border-2 rounded-2xl p-3" />
+          </div>
+          <div>
+            <label class="block mb-2 font-semibold">رقم الهاتف</label>
+            <input name="guardianPhone" class="w-full border-2 rounded-2xl p-3" />
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 5: عنوان السكن بالكامل -->
+      <section id="step5" class="step-hidden space-y-6">
+        <h2 class="text-xl font-bold text-slate-900">عنوان السكن بالكامل</h2>
+
+        <div class="grid md:grid-cols-3 gap-5">
+          <div>
+            <label class="block mb-2 font-semibold">المنطقة *</label>
+            <input name="addressArea" required class="w-full border-2 rounded-2xl p-3 focus:outline-none focus:border-sky-400" />
+          </div>
+          <div>
+            <label class="block mb-2 font-semibold">القطعة *</label>
+            <input name="addressBlock" required class="w-full border-2 rounded-2xl p-3" />
+          </div>
+          <div>
+            <label class="block mb-2 font-semibold">الشارع *</label>
+            <input name="addressStreet" required class="w-full border-2 rounded-2xl p-3" />
+          </div>
+          <div>
+            <label class="block mb-2 font-semibold">المنزل *</label>
+            <input name="addressHouse" required class="w-full border-2 rounded-2xl p-3" />
+          </div>
+          <div>
+            <label class="block mb-2 font-semibold">الدور</label>
+            <input name="addressFloor" class="w-full border-2 rounded-2xl p-3" />
+          </div>
+          <div>
+            <label class="block mb-2 font-semibold">هاتف المنزل</label>
+            <input name="homePhone" class="w-full border-2 rounded-2xl p-3" />
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 6: وسيلة المواصلات + تنبيه -->
+      <section id="step6" class="step-hidden space-y-6">
+        <h2 class="text-xl font-bold text-slate-900">وسيلة مواصلات الطالب طوال العام الدراسي</h2>
+        <div class="space-y-2 text-slate-700">
+          <label class="flex items-center gap-2"><input type="radio" name="transport" value="باص" required> باص</label>
+          <label class="flex items-center gap-2"><input type="radio" name="transport" value="سيراً على الأقدام" required> سيراً على الأقدام</label>
+          <label class="flex items-center gap-2"><input type="radio" name="transport" value="مشي" required> مشي</label>
+        </div>
+
+        <div class="mt-4 p-4 rounded-2xl border border-amber-200 bg-amber-50 text-amber-900 text-sm leading-7">
+          <p class="font-semibold mb-1">تنبيه:</p>
+          <p>انتظار الطالب داخل صالة الانتظار حيث إن إدارة المدرسة غير مسؤولة عن الطالب في حالة الوقوف خارج أسوار المدرسة.</p>
+          <label class="flex items-center gap-2 mt-3">
+            <input type="checkbox" name="lobbyWaitingAware" value="أقر بالعلم" required>
+            <span>أقر أنني اطلعت على التنبيه أعلاه (إجباري).</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- STEP 7: الإقرار والتوقيع -->
+      <section id="step7" class="step-hidden space-y-6">
+        <h2 class="text-xl font-bold text-slate-900">الإقرار</h2>
+        <div class="p-4 rounded-2xl border bg-slate-50 text-slate-700 text-sm leading-7">
+          <p>
+            أقر وأتعهد بأن جميع البيانات المذكورة صحيحة، وأتعهد بسداد الرسوم الدراسية كاملةً وأي زيادة تطرأ على الرسوم من قبل وزارة التربية،
+            والالتزام بالتعليمات واللوائح المدرسية.
+          </p>
+          <label class="flex items-center gap-2 mt-3">
+            <input type="checkbox" name="declarationAgree" value="موافق" required>
+            <span>أوافق على الإقرار أعلاه (إجباري)</span>
+          </label>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-5">
+          <div>
+            <label class="block font-semibold mb-2">تاريخ اليوم *</label>
+            <input type="date" id="signDate" name="signDate" required class="w-full border-2 rounded-2xl p-3" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-2">اسم ولي الأمر (للتوقيع)</label>
+            <input name="guardianSignerName" class="w-full border-2 rounded-2xl p-3" placeholder="الاسم الذي سيوقع" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-2">توقيع ولي الأمر (إجباري)</label>
+          <canvas id="signature" width="900" height="260" class="w-full"></canvas>
+          <div class="flex gap-3 mt-3">
+            <button type="button" id="clearSig" class="px-4 py-2 rounded-xl btn-alt">مسح التوقيع</button>
+          </div>
+          <input type="hidden" id="signatureData" name="signatureData" />
+        </div>
+      </section>
+
+      <!-- STEP 8: مراجعة وإرسال -->
+      <section id="step8" class="step-hidden space-y-4">
+        <h2 class="text-xl font-bold text-slate-900">مراجعة أخيرة</h2>
+        <p class="text-slate-600">تأكد من صحة البيانات، ثم اضغط "إرسال".</p>
+      </section>
+
+      <!-- Controls -->
+      <div class="flex justify-between items-center pt-2">
+        <button type="button" id="prevBtn" class="px-5 py-3 rounded-2xl font-semibold btn-alt disabled:opacity-50">السابق</button>
+        <button type="button" id="nextBtn" class="px-6 py-3 rounded-2xl text-white font-semibold btn">التالي</button>
+      </div>
+    </form>
+
+    <div id="resultBox" class="mt-10 hidden">
+      <div class="p-6 text-center rounded-2xl border-2">
+        <h3 id="resultTitle" class="text-2xl font-bold mb-2"></h3>
+        <p id="resultMsg" class="text-slate-700"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Stepper =====
+    const totalSteps = 8;
+    let step = 1;
+    const stepNow = document.getElementById('stepNow');
+    const stepTotal = document.getElementById('stepTotal');
+    const progressBar = document.getElementById('progressBar');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const form = document.getElementById('studentForm');
+    stepTotal.textContent = totalSteps;
+
+    function showStep(n){
+      for(let i=1;i<=totalSteps;i++){
+        const s=document.getElementById('step'+i);
+        if(s) s.classList.toggle('step-hidden', i!==n);
+      }
+      stepNow.textContent=n;
+      progressBar.style.width=((n-1)/(totalSteps-1))*100+'%';
+      prevBtn.disabled=(n===1);
+      nextBtn.textContent = (n===totalSteps)? 'إرسال' : 'التالي';
+    }
+    showStep(step);
+
+    prevBtn.addEventListener('click', ()=>{ if(step>1){ step--; showStep(step);} });
+    nextBtn.addEventListener('click', async ()=>{
+      if(!(await validateStep(step))) return;
+      if(step<totalSteps){ step++; showStep(step);} else { submitForm(); }
+    });
+
+    // ===== Validation per step (required-only) =====
+    async function validateStep(n){
+      const current=document.getElementById('step'+n);
+      const requiredEls=current.querySelectorAll('[required]');
+
+      for (const el of requiredEls){
+        if(el.type==='radio'){
+          const name=el.name;
+          const checked=current.querySelector(`input[type="radio"][name="${name}"]:checked`);
+          if(!checked){
+            alert('⚠️ يرجى اختيار الحقول المطلوبة.');
+            return false;
+          }
+        }else if(el.type==='checkbox'){
+          if(!el.checked){
+            alert('⚠️ يرجى الإقرار بالمطلوب.');
+            return false;
+          }
+        }else{
+          if(!el.value || el.value.trim()===''){
+            alert('⚠️ يرجى تعبئة الحقول المطلوبة.');
+            return false;
+          }
+          if(el.name==='studentCivilId' && !/^\d{12}$/.test(el.value.trim())){
+            alert('⚠️ الرقم المدني يجب أن يكون 12 رقمًا.');
+            return false;
+          }
+        }
+      }
+
+      if(n===7){ // توقيع إجباري
+        const signature=document.getElementById('signature');
+        if(isCanvasBlank(signature)){
+          alert('⚠️ الرجاء إدخال التوقيع.');
+          return false;
+        }
+      }
+      return true;
+    }
+
+    // ===== Signature Canvas =====
+    const signature=document.getElementById('signature');
+    const ctx=signature.getContext('2d');
+    let drawing=false;
+
+    function getPos(evt){
+      const r=signature.getBoundingClientRect();
+      if(evt.touches && evt.touches[0]) return {x:evt.touches[0].clientX-r.left, y:evt.touches[0].clientY-r.top};
+      return {x:evt.offsetX, y:evt.offsetY};
+    }
+    if(signature){
+      signature.addEventListener('mousedown',e=>{drawing=true;ctx.beginPath();const p=getPos(e);ctx.moveTo(p.x,p.y);});
+      signature.addEventListener('mousemove',e=>{if(!drawing)return;const p=getPos(e);ctx.lineTo(p.x,p.y);ctx.strokeStyle='#0ea5e9';ctx.lineWidth=2;ctx.lineCap='round';ctx.stroke();});
+      signature.addEventListener('mouseup',()=>drawing=false);
+      signature.addEventListener('mouseleave',()=>drawing=false);
+
+      signature.addEventListener('touchstart',e=>{e.preventDefault();drawing=true;ctx.beginPath();const p=getPos(e);ctx.moveTo(p.x,p.y);});
+      signature.addEventListener('touchmove',e=>{e.preventDefault();if(!drawing)return;const p=getPos(e);ctx.lineTo(p.x,p.y);ctx.strokeStyle='#0ea5e9';ctx.lineWidth=2;ctx.lineCap='round';ctx.stroke();});
+      signature.addEventListener('touchend',()=>drawing=false);
+
+      document.getElementById('clearSig').addEventListener('click',()=>{ctx.clearRect(0,0,signature.width,signature.height);});
+    }
+
+    function isCanvasBlank(cnv){
+      if(!cnv) return false;
+      const blank=document.createElement('canvas');
+      blank.width=cnv.width; blank.height=cnv.height;
+      return cnv.toDataURL()===blank.toDataURL();
+    }
+
+    // set today
+    (function(){
+      const d=document.getElementById('signDate');
+      if(d) d.value=new Date().toISOString().slice(0,10);
+    })();
+
+    // ===== Submit =====
+    async function submitForm(){
+      if(signature) document.getElementById('signatureData').value=signature.toDataURL();
+
+      const data={};
+      new FormData(form).forEach((v,k)=>{ if(data[k]!==undefined){ Array.isArray(data[k])?data[k].push(v):data[k]=[data[k],v]; } else { data[k]=v; }});
+      data.submissionDateISO=new Date().toISOString();
+      data.formType='StudentDataForm';
+
+      const resultBox=document.getElementById('resultBox');
+      const resultTitle=document.getElementById('resultTitle');
+      const resultMsg=document.getElementById('resultMsg');
+
+      nextBtn.disabled=true; prevBtn.disabled=true; nextBtn.textContent='جاري الإرسال...';
+
+      try{
+        const res=await fetch('https://n8n.101488.xyz/webhook/Nasr-school',{
+          method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)
+        });
+        resultBox.classList.remove('hidden');
+        if(res.ok){
+          resultTitle.textContent='✅ تم الإرسال بنجاح';
+          resultMsg.textContent='وصلت بيانات النموذج إلى الإدارة.';
+          resultBox.classList.add('border-emerald-200','bg-emerald-50');
+          form.classList.add('hidden');
+        }else{
+          throw new Error('فشل الإرسال');
+        }
+      }catch(e){
+        resultTitle.textContent='❌ حدث خطأ أثناء الإرسال';
+        resultMsg.textContent='يرجى المحاولة مرة أخرى.';
+        resultBox.classList.remove('hidden');
+        resultBox.classList.add('border-rose-200','bg-rose-50');
+        nextBtn.disabled=false; prevBtn.disabled=false; nextBtn.textContent='إرسال';
+      }
+    }
+  </script>
+</body>
+</html>
