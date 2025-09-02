@@ -33,7 +33,7 @@
         <div class="text-sm md:text-base font-bold text-slate-700">
           الإدارة العامة للتعليم الخاص
         </div>
-        <!-- تم التعديل هنا: سطرين يسار الهيدر -->
+        <!-- تم التعديل سابقًا حسب طلبك -->
         <div class="text-right">
           <div class="text-xs md:text-sm font-bold text-slate-600">مؤسسة الجيل الجديد التعليمية</div>
           <div class="text-sm md:text-base font-extrabold text-emerald-700">مدرسة النصر الأهلية</div>
@@ -102,15 +102,24 @@
               <label class="flex items-center gap-2"><input type="radio" name="enrollmentStatus" value="مستمر" required> مستمر</label>
             </div>
           </div>
+
+          <!-- تم التعديل هنا: نوع الطلب = نقل / إعادة قيد فقط -->
           <div>
             <label class="block font-semibold mb-2">نوع الطلب (اختياري)</label>
             <div class="flex flex-wrap gap-4 text-slate-700">
               <label class="flex items-center gap-2"><input type="radio" name="requestType" value="نقل"> نقل</label>
               <label class="flex items-center gap-2"><input type="radio" name="requestType" value="إعادة قيد"> إعادة قيد</label>
-              <label class="flex items-center gap-2"><input type="radio" name="requestType" value="عسكري"> عسكري</label>
-              <label class="flex items-center gap-2"><input type="radio" name="requestType" value="صندوق"> صندوق</label>
-              <label class="flex items-center gap-2"><input type="radio" name="requestType" value="الأوقاف"> الأوقاف</label>
             </div>
+          </div>
+        </div>
+
+        <!-- تم الإضافة هنا: فئة ولي الأمر = عسكري / صندوق خيري / الأوقاف -->
+        <div>
+          <label class="block font-semibold mb-2">فئة ولي الأمر (اختياري)</label>
+          <div class="flex flex-wrap gap-6 text-slate-700">
+            <label class="flex items-center gap-2"><input type="radio" name="guardianCategory" value="عسكري"> عسكري</label>
+            <label class="flex items-center gap-2"><input type="radio" name="guardianCategory" value="صندوق خيري"> صندوق خيري</label>
+            <label class="flex items-center gap-2"><input type="radio" name="guardianCategory" value="الأوقاف"> الأوقاف</label>
           </div>
         </div>
       </section>
@@ -280,7 +289,7 @@
         <div class="mt-4 p-4 rounded-2xl border border-amber-200 bg-amber-50 text-amber-900 text-sm leading-7">
           <p class="font-semibold mb-1">تنبيه:</p>
           <p>في حالة انصراف الطالب (سيرا على الأقدام) يقوم ولي الأمر بالتوقيع على تعهد بتحمله مسؤولية ذلك.</p>
- 	  <p>انتظار الطالب داخل صالة الانتظار حيث إن إدارة المدرسة غير مسؤولة عن الطالب في حالة الوقوف خارج أسوار المدرسة.</p>
+          <p>انتظار الطالب داخل صالة الانتظار حيث إن إدارة المدرسة غير مسؤولة عن الطالب في حالة الوقوف خارج أسوار المدرسة.</p>
 
           <label class="flex items-center gap-2 mt-3">
             <input type="checkbox" name="lobbyWaitingAware" value="أقر بالعلم" required>
