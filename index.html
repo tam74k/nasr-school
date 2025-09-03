@@ -23,6 +23,7 @@
     canvas{ border:2px dashed #cbd5e1; border-radius:14px; background:#f8fafc; }
     .step-hidden{ display:none; }
   </style>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body class="min-h-screen py-8 px-4">
 
@@ -354,7 +355,17 @@
     </div>
   </div>
 
-  <script>
+  <script>// ===== Supabase Config (added) =====
+const SB_URL = "https://sotjzixqqjtvkvosvynf.supabase.co";
+const SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNvdGp6aXhxcWp0dmt2b3N2eW5mIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjM1MzA2NCwiZXhwIjoyMDcxOTI5MDY0fQ.2f8sdeNfAAxEVQ5kG6zSLB8rwsz7Xmqdx3VLOnAJQsg";
+const { createClient } = supabase;
+const SB = createClient(SB_URL, SB_ANON);
+function normalizeDigits(str){
+  return String(str||'')
+    .replace(/[\u0660-\u0669]/g, d => String.fromCharCode(d.charCodeAt(0)-0x0660+48))
+    .replace(/[\u06F0-\u06F9]/g, d => String.fromCharCode(d.charCodeAt(0)-0x06F0+48));
+}
+
     // ===== Stepper =====
     const totalSteps = 8;
     let step = 1;
@@ -407,11 +418,14 @@
             alert('⚠️ يرجى تعبئة الحقول المطلوبة.');
             return false;
           }
-          if(el.name==='studentCivilId' && !/^\d{12}$/.test(el.value.trim())){
+          if(el.name==='studentCivilId'){
+          el.value = normalizeDigits(el.value).replace(/\D/g,'').slice(0,12);
+          if(!/^\d{12}$/.test(el.value.trim())){
             alert('⚠️ الرقم المدني يجب أن يكون 12 رقمًا.');
             return false;
           }
         }
+                }
       }
 
       if(n===7){ // توقيع إجباري
@@ -496,6 +510,79 @@
         nextBtn.disabled=false; prevBtn.disabled=false; nextBtn.textContent='إرسال';
       }
     }
-  </script>
+  
+
+async function submitForm(){
+  const signature = document.getElementById('signature');
+  const sigDataEl = document.getElementById('signatureData');
+  if(signature && sigDataEl){ sigDataEl.value = signature.toDataURL(); }
+
+  const f = new FormData(form);
+  const get = (k) => (f.get(k) || '').toString().trim();
+  const getRadio = (name) => { const v = f.getAll(name); return v && v.length ? v[v.length-1] : ''; };
+  const getCheckbox = (name) => f.get(name) ? 'موافق' : 'غير موافق';
+
+  const payload = {
+    student_name: get('studentName'),
+    student_civil_id: normalizeDigits(get('studentCivilId')).replace(/\D/g,''),
+    new_grade: get('newGrade'),
+    last_year_result: getRadio('lastYearResult'),
+    enrollment_status: getRadio('enrollmentStatus'),
+    father_employment: getRadio('fatherEmployment') || get('fatherEmployment'),
+    father_name: get('fatherName'),
+    father_job: get('fatherJob') || null,
+    father_work_address: get('fatherWorkAddress') || null,
+    father_phone: get('fatherPhone') || null,
+    father_nationality: get('fatherNationality') || null,
+    mother_employment: getRadio('motherEmployment') || get('motherEmployment'),
+    mother_name: get('motherName'),
+    mother_job: get('motherJob') || null,
+    mother_work_address: get('motherWorkAddress') || null,
+    mother_phone: get('motherPhone') || null,
+    mother_nationality: get('motherNationality') || null,
+    mother_marital: getRadio('motherMarital') || get('motherMarital') || null,
+    guardian_name: get('guardianName') || null,
+    guardian_relation: get('guardianRelation') || null,
+    guardian_nationality: get('guardianNationality') || null,
+    guardian_phone: get('guardianPhone') || null,
+    address_area: get('addressArea'),
+    address_block: get('addressBlock'),
+    address_street: get('addressStreet'),
+    address_house: get('addressHouse'),
+    address_floor: get('addressFloor') || null,
+    home_phone: get('homePhone') || null,
+    transport: getRadio('transport') || get('transport'),
+    lobby_waiting_aware: getCheckbox('lobbyWaitingAware'),
+    declaration_agree: getCheckbox('declarationAgree'),
+    sign_date: get('signDate'),
+    guardian_signer_name: get('guardianSignerName') || null,
+    signature_data: get('signatureData') || null,
+    submission_date_iso: new Date().toISOString()
+  };
+
+  const resultBox=document.getElementById('resultBox');
+  const resultTitle=document.getElementById('resultTitle');
+  const resultMsg=document.getElementById('resultMsg');
+  nextBtn.disabled=true; prevBtn.disabled=true; nextBtn.textContent='جاري الإرسال...';
+
+  try{
+    const { error } = await SB.from('student_forms').insert([payload]);
+    resultBox.classList.remove('hidden');
+    if(!error){
+      resultTitle.textContent='✅ تم الإرسال بنجاح';
+      resultMsg.textContent='تم حفظ بيانات النموذج في قاعدة البيانات.';
+      resultBox.classList.add('border-emerald-200','bg-emerald-50');
+      form.classList.add('hidden');
+    }else{ throw error; }
+  }catch(e){
+    resultTitle.textContent='❌ حدث خطأ أثناء الإرسال';
+    resultMsg.textContent='يرجى المحاولة مرة أخرى. ' + (e?.message || '');
+    resultBox.classList.remove('hidden');
+    resultBox.classList.add('border-rose-200','bg-rose-50');
+    nextBtn.disabled=false; prevBtn.disabled=false; nextBtn.textContent='إرسال';
+  }
+}
+
+</script>
 </body>
 </html>
